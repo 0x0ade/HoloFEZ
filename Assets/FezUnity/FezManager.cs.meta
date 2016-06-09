@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: b2e46c1842c4137419ce2cf7fb359bfc
+timeCreated: 1465478054
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - DefaultShader: {fileID: 7, guid: 0000000000000000f000000000000000, type: 0}
+  - BackgroundPlaneMaterial: {fileID: 2100000, guid: b1f98bb3890b13e47b5eb7077da6b7e5,
+      type: 2}
+  - BackgroundPlaneFullbrightMaterial: {fileID: 2100000, guid: 27ea472180d43774c9b4abf574e3b252,
+      type: 2}
+  - BackgroundPlaneFullbrightOnesidedMaterial: {fileID: 2100000, guid: 198248f197651e843a1dff25ecf84401,
+      type: 2}
+  - BackgroundPlaneOnesidedMaterial: {fileID: 2100000, guid: 1bbd5f996aec1c043a01d18e152c2b04,
+      type: 2}
+  - SkyLayerMaterial: {fileID: 2100000, guid: a517af8823c39d14585d55d95f55a269, type: 2}
+  - SkyLayerFullbrightMaterial: {fileID: 2100000, guid: 7ffdda5a6ff527343b5e608a458f36f7,
+      type: 2}
+  - QuadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  - BackgroundPlaneMesh: {instanceID: 0}
+  - SkyLayerMesh: {instanceID: 0}
+  - Player: {instanceID: 0}
+  - Sun: {instanceID: 0}
+  executionOrder: -200
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
