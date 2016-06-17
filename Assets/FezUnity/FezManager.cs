@@ -183,7 +183,10 @@ public class FezManager : MonoBehaviour {
 	}
 	
 	void Update() {
-        Time += UnityEngine.Time.deltaTime * TimeFactor;
+        Time += UnityEngine.Time.deltaTime * TimeFactor + UnityEngine.Time.deltaTime * TimeFactor * Input.GetAxis("Time") * 100.0f;
+        if (Time < 0f) {
+            Time += SecondsPerDay;
+        }
 
         // Time contribution values blatantly stolen from FEZ
         const float onesixth = 1f / 6f;

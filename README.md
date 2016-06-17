@@ -16,6 +16,12 @@
 
 ----
 
+### Advanced instructions:
+* Hold SHIFT when starting HoloFEZ to change the resolution / controls.
+* HoloFEZ works best in VR on some systems with a resolution of 1024 x 768 (default).
+
+----
+
 ### Default Controls (both non-VR and VR):
 
 Movement: WASD / Left Stick  
@@ -24,11 +30,16 @@ Select: LMB / Shift / A
 
 Back to level select: RMB / Ctrl / B
 
+Change time: Q / E / LT / RT
+
+Move straight up & down: R / F / LB / RB
+
+Recalibrate orientation: Y (keyboard or gamepad)
+
 ----
 
-#### TOOD:
+#### TODO:
 * Sound (ambient, music)
-* Better background handling (some left untested)
 * Optimize level loading (according to profiler, currently trashing GC)
 * Implement HW instancing as soon as available & stable in Unity
 * NPCs

@@ -12,7 +12,7 @@ public class HoloFEZPlayer : MonoBehaviour {
 		Instance = this;
 	}
 	
-	public float Speed = 0.2f;
+	public float Speed = 0.05f;
 	public bool Frozen = false;
 	[HideInInspector]
 	public bool Moving = false;
@@ -30,6 +30,9 @@ public class HoloFEZPlayer : MonoBehaviour {
 
     bool vr;
     bool seated;
+
+    float lastRecalibratedYRot;
+    Quaternion nullRotation = Quaternion.Euler(0f, 0f, 0f);
 
     void Start() {
         vr = OpenVR.IsHmdPresent();
@@ -127,6 +130,14 @@ public class HoloFEZPlayer : MonoBehaviour {
                 dir.Normalize();
                 transform.position += dir * Speed * HoloFEZHelper.SpeedF;
             }
+
+            transform.position += Vector3.up * Input.GetAxis("Y Movement") * Speed * HoloFEZHelper.SpeedF;
+        }
+
+        // Seated recalibration
+        if (seated && Input.GetButtonDown("Recalibrate")) {
+            transform.rotation = Quaternion.Euler(0f, lastRecalibratedYRot = (Camera.main.transform.rotation.eulerAngles.y - lastRecalibratedYRot), 0f);
+            VRControls.transform.rotation = nullRotation;
         }
 		
         FixedUpdate();
