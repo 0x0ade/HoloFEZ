@@ -18,6 +18,8 @@ public class FezUnitySky : MonoBehaviour, IFillable<Sky>, IFillable<FezUnitySky>
 		}
 	}
 
+    public bool IsFullbright { get; protected set; }
+
     public Texture2D Texture;
     public Color[] FogColors;
 
@@ -41,6 +43,7 @@ public class FezUnitySky : MonoBehaviour, IFillable<Sky>, IFillable<FezUnitySky>
 
     public void Fill(Sky sky) {
         Sky = sky;
+        IsFullbright = FezHelper.IsSkyFullbright(Name);
 
         Texture = FezManager.Instance.GetTexture("skies/" + sky.Name + "/" + sky.Background) as Texture2D;
         FogColors = Texture.GetPixels(0, (int) (Texture.height / 2f), Texture.width, 1);
@@ -76,16 +79,17 @@ public class FezUnitySky : MonoBehaviour, IFillable<Sky>, IFillable<FezUnitySky>
         Layers = new GameObject[Sky.Layers.Count];
         int indexOffset = 0;
         bool isOuterSpace = Name == "OUTERSPACE";
+        float offsetScale = FezHelper.IsSkyClouded(Name) ? 2f : 1f;
         for (int i = 0; i < Layers.Length; i++) {
             SkyLayer layer = Sky.Layers[i];
 
             if (!isOuterSpace && layer.Name.StartsWith("OUTERSPACE")) {
                 // TODO handle space layer separately
-                indexOffset++;
-                continue;
+                //indexOffset++;
+                //continue;
             }
 
-            GameObject layerObj = layer.GenObject(this, Layers.Length - (i - indexOffset));
+            GameObject layerObj = layer.GenObject(this, Layers.Length - (i - indexOffset), offsetScale);
             layerObj.transform.parent = transform;
             Layers[i] = layerObj;
         }
@@ -99,18 +103,7 @@ public class FezUnitySky : MonoBehaviour, IFillable<Sky>, IFillable<FezUnitySky>
     private readonly static Vector3 onethirdV3 = new Vector3(1f/3f, 1f/3f, 1f/3f);
     public void Update() {
         // TODO add further special cases
-        if (Name == "Mine" ||
-            Name == "BLACK" ||
-            Name == "ORR_SKY" ||
-            Name == "WATERWHEEL" ||
-            Name == "OUTERSPACE" ||
-            Name == "ROOTS" ||
-            Name == "CMY" ||
-            Name == "Cave" ||
-            Name == "CRYPT" ||
-            Name == "MEMORY_GRID" ||
-            Name == "LOVELINE" ||
-            Name == "DRAPES") {
+        if (IsFullbright) {
             // This "sky" is "inside"
             FezManager.Instance.Sun.gameObject.SetActive(false);
             RenderSettings.fogColor = FogColors[0] + new Color(0.27f, 0.26f, 0.25f);

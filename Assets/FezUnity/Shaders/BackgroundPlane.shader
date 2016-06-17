@@ -86,8 +86,15 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardCoreForward.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			half4 fragHook(VertexOutputForwardBase i) : SV_Target {
-				i.tex.xy = frac((i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.tex.xy =
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				return fragBase(i);
 			}
 
@@ -127,8 +134,15 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardCoreForward.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			half4 fragHook(VertexOutputForwardAdd i) : SV_Target{
-				i.tex.xy = frac((i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.tex.xy =
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				return fragAdd(i);
 			}
 
@@ -160,6 +174,7 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardShadow.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			half4 fragHook(
 				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
 				VertexOutputShadowCaster i
@@ -170,7 +185,13 @@ Shader "FezUnity/BackgroundPlane"
 			) : SV_Target {
 				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
 				//FIXME
-				//i.tex.xy = frac((i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				/*i.tex.xy =
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;*/
 				#endif
 				return fragShadowCaster(
 					#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
@@ -218,12 +239,19 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardCore.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			void fragHook(VertexOutputDeferred i,
 				out half4 outDiffuse : SV_Target0,
 				out half4 outSpecSmoothness : SV_Target1,
 				out half4 outNormal : SV_Target2,
 				out half4 outEmission : SV_Target3) {
-				i.tex.xy = frac((i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.tex.xy = 
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				fragDeferred(i, outDiffuse, outSpecSmoothness, outNormal, outEmission);
 			}
 
@@ -251,8 +279,15 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardMeta.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			float4 frag_hook(v2f_meta i) : SV_Target {
-				i.uv.xy = frac((i.uv.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.uv.xy = 
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.uv.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				return frag_meta(i);
 			}
 
@@ -297,8 +332,15 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardCoreForward.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			half4 fragHook(VertexOutputForwardBase i) : SV_Target {
-				i.tex.xy = frac((i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.tex.xy = 
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				return fragBase(i);
 			}
 
@@ -334,8 +376,15 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardCoreForward.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			half4 fragHook(VertexOutputForwardAdd i) : SV_Target {
-				i.tex.xy = frac((i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.tex.xy = 
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				return fragAdd(i);
 			}
 
@@ -363,6 +412,7 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardShadow.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			half4 fragHook(
 				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
 				VertexOutputShadowCaster i
@@ -373,7 +423,13 @@ Shader "FezUnity/BackgroundPlane"
 			) : SV_Target {
 				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
 				//FIXME
-				//i.tex.xy = frac((i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				/*i.tex.xy = 
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;*/
 				#endif
 				return fragShadowCaster(
 					#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
@@ -409,8 +465,15 @@ Shader "FezUnity/BackgroundPlane"
 			#include "UnityStandardMeta.cginc"
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			float4 frag_hook(v2f_meta i) : SV_Target {
-				i.uv.xy = frac((i.uv.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.uv.xy = 
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.uv.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				return frag_meta(i);
 			}
 

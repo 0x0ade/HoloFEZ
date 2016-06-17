@@ -41,6 +41,7 @@ SubShader {
 			float4 _Color;
 
 			float4 _PlaneScale;
+			#pragma multi_compile _ _PlaneClamp
 			
 			v2f vert (appdata_t v)
 			{
@@ -53,7 +54,13 @@ SubShader {
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				i.uv = frac((i.uv - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
+				i.uv = 
+				#ifndef _PlaneClamp
+				frac(
+				#else
+				saturate(
+				#endif
+				(i.uv - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;
 				fixed4 col = tex2D(_MainTex, i.uv);
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col * _Color;

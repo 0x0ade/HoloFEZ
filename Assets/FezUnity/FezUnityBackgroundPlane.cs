@@ -53,6 +53,9 @@ public class FezUnityBackgroundPlane : MonoBehaviour, IFillable<BackgroundPlane>
         meshRenderer.sharedMaterial.mainTexture.wrapMode = TextureWrapMode.Clamp; // Fixes bleeding edges in some background planes
 
         meshRenderer.sharedMaterial.SetVector("_PlaneScale", new Vector4(plane.Scale.x, plane.Scale.y, 0f, 0f));
+        if (plane.TextureName == "dent_square") {
+            meshRenderer.sharedMaterial.EnableKeyword("_PlaneClamp");
+        }
     }
 	
 	public void Update() {

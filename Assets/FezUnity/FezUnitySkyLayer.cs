@@ -9,24 +9,23 @@ public class FezUnitySkyLayer : MonoBehaviour, IFillable<FezUnitySky, SkyLayer, 
 
 	[HideInInspector]
 	public SkyLayer Layer;
-	
+    [HideInInspector]
 	public Material Material;
 	
 	public void Fill(FezUnitySky sky, SkyLayer layer, int index) {
 		Layer = layer;
 
+        float skyScale = 1f;
+        if (sky.Name == "ROOTS" ||
+            sky.Name == "ORR_SKY") {
+            skyScale = 2f;
+        }
+        if (sky.Name == "SEWERS") {
+            skyScale = 16f;
+        }
+
         Material materialBase = FezManager.Instance.SkyLayerMaterial;
-        if (sky.Name == "OUTERSPACE" ||
-            sky.Name == "GRAVE" ||
-            sky.Name == "Mine" ||
-            sky.Name == "ORR_SKY" ||
-            sky.Name == "ROOTS" ||
-            sky.Name == "Cave" ||
-            sky.Name == "CRYPT" ||
-            sky.Name == "CMY" ||
-            sky.Name == "MEMORY_GRID" ||
-            sky.Name == "LOVELINE" ||
-            sky.Name == "DRAPES") {
+        if (sky.IsFullbright) {
             // Full-bright sky (no fog, lighting) looks better
             materialBase = FezManager.Instance.SkyLayerFullbrightMaterial;
         }
@@ -44,15 +43,12 @@ public class FezUnitySkyLayer : MonoBehaviour, IFillable<FezUnitySky, SkyLayer, 
             transform.localScale.z
         );
         float ratio = tex.width / tex.height;
-        meshRenderer.sharedMaterial.mainTextureScale = new Vector2(1f, Scale * ratio);
+        meshRenderer.sharedMaterial.mainTextureScale = new Vector2(1f * skyScale, Scale * ratio * skyScale);
 
         meshRenderer.sharedMaterial.color = new Color(1f, 1f, 1f, layer.Opacity);
 
         // TODO add further special cases
-        if (sky.Name == "Mine" ||
-            sky.Name == "WATERWHEEL" ||
-            sky.Name == "WATERFRONT" ||
-            sky.Name == "ABOVE") {
+        if (FezHelper.IsSkyExtending(sky.Name)) {
             // The ceiling / bottom should extend, not repeat
             meshRenderer.sharedMaterial.mainTexture.wrapMode = TextureWrapMode.Clamp;
             meshRenderer.sharedMaterial.mainTextureOffset = new Vector2(0f, -meshRenderer.sharedMaterial.mainTextureScale.y / 2f + 1f);
@@ -64,20 +60,8 @@ public class FezUnitySkyLayer : MonoBehaviour, IFillable<FezUnitySky, SkyLayer, 
         if (sky.Name == "OUTERSPACE") {
             // Scale the repeating star texture properly
             meshRenderer.sharedMaterial.mainTextureScale = new Vector2(
-                (index / 4f) * 16f * meshRenderer.sharedMaterial.mainTextureScale.x,
-                (index / 4f) * 16f * meshRenderer.sharedMaterial.mainTextureScale.y
-            );
-        }
-
-        if (sky.Name == "ABOVE") {
-            // Flip so it's correct (everything else looks better with the extension downwards)
-            meshRenderer.sharedMaterial.mainTextureOffset = new Vector2(
-                meshRenderer.sharedMaterial.mainTextureOffset.x,
-                meshRenderer.sharedMaterial.mainTextureScale.y + meshRenderer.sharedMaterial.mainTextureOffset.y - 1f
-            );
-            meshRenderer.sharedMaterial.mainTextureScale = new Vector2(
-                meshRenderer.sharedMaterial.mainTextureScale.x,
-                -meshRenderer.sharedMaterial.mainTextureScale.y
+                (index / 4f) * 24f * meshRenderer.sharedMaterial.mainTextureScale.x,
+                (index / 4f) * 24f * meshRenderer.sharedMaterial.mainTextureScale.y
             );
         }
 
@@ -92,6 +76,17 @@ public class FezUnitySkyLayer : MonoBehaviour, IFillable<FezUnitySky, SkyLayer, 
 
         // Fix shadow artifacting
         meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+
+        // Fix sky flip and offset
+        meshRenderer.sharedMaterial.mainTextureOffset = new Vector2(
+            meshRenderer.sharedMaterial.mainTextureOffset.x,
+            meshRenderer.sharedMaterial.mainTextureScale.y + meshRenderer.sharedMaterial.mainTextureOffset.y - 1f +
+            (sky.Name == "ABOVE" ? -0.0125f : 0.625f)
+        );
+        meshRenderer.sharedMaterial.mainTextureScale = new Vector2(
+            meshRenderer.sharedMaterial.mainTextureScale.x,
+            -meshRenderer.sharedMaterial.mainTextureScale.y
+        );
 
     }
 

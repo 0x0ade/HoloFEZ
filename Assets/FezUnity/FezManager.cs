@@ -48,7 +48,7 @@ public class FezManager : MonoBehaviour {
     [HideInInspector] public float DawnContribution;
     [HideInInspector] public float DuskContribution;
 
-    public float SkySpace = 24f;
+    public float SkySpace = 48f;
 
     [HideInInspector] public Dictionary<string, Texture> Textures = new Dictionary<string, Texture>();
 
@@ -127,15 +127,15 @@ public class FezManager : MonoBehaviour {
                     new Vector2(1f, 0f),
                     new Vector2(1f, 1f),
                     // C
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 1f),
                     new Vector2(1f, 0f),
                     new Vector2(1f, 1f),
-                    // D
                     new Vector2(0f, 0f),
                     new Vector2(0f, 1f),
+                    // D
                     new Vector2(1f, 0f),
-                    new Vector2(1f, 1f)
+                    new Vector2(1f, 1f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 1f)
                 },
                 triangles = new int[] {
                     // A

@@ -149,10 +149,10 @@ public static class FezHelper {
 		return obj;
 	}
 
-    public static GameObject GenObject(this SkyLayer layer, FezUnitySky parent, int index) {
+    public static GameObject GenObject(this SkyLayer layer, FezUnitySky parent, int index, float offsetScale = 1f) {
         float maxSize = Mathf.Max(FezUnityLevel.Current.Level.Size.x, FezUnityLevel.Current.Level.Size.y, FezUnityLevel.Current.Level.Size.z);
         float sizeFactor = Mathf.Max(1f, maxSize / 32f);
-        float offset = sizeFactor * (index * 32f + FezManager.Instance.SkySpace);
+        float offset = sizeFactor * (index * 32f + FezManager.Instance.SkySpace) * offsetScale;
 
         GameObject obj = new GameObject(layer.Name);
         obj.transform.parent = parent.transform;
@@ -175,6 +175,35 @@ public static class FezHelper {
         obj.FezZ();
 
         return obj;
+    }
+
+    public static bool IsSkyFullbright(string name) {
+        return
+            name == "WATERWHEEL" ||
+            name == "BLACK" ||
+            name == "OUTERSPACE" ||
+            name == "GRAVE" ||
+            name == "Mine" ||
+            name == "ORR_SKY" ||
+            name == "ROOTS" ||
+            name == "Cave" ||
+            name == "CRYPT" ||
+            name == "CMY" ||
+            name == "MEMORY_GRID" ||
+            name == "LOVELINE" ||
+            name == "DRAPES";
+    }
+    public static bool IsSkyExtending(string name) {
+        return
+            name == "Mine" ||
+            name == "WATERWHEEL" ||
+            name == "WATERFRONT" ||
+            name == "ABOVE";
+    }
+    public static bool IsSkyClouded(string name) {
+        return
+            name == "WATERFRONT" ||
+            name == "ABOVE";
     }
 
 }
