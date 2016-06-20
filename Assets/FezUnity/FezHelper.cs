@@ -206,4 +206,52 @@ public static class FezHelper {
             name == "ABOVE";
     }
 
+    // Raw values stolen from FEZ
+    public readonly static Dictionary<LiquidType, FezUnityLiquidColorScheme> LiquidColorSchemes = new Dictionary<LiquidType, FezUnityLiquidColorScheme>() {
+        { LiquidType.Water, new FezUnityLiquidColorScheme() {
+            LiquidBody = new Color(61f / 255f, 117f / 255f, 254f / 255f),
+            SolidOverlay = new Color(40f / 255f, 76f / 255f, 162f / 255f),
+            SubmergedFoam = new Color(91f / 255f, 159f / 255f, 254f / 255f),
+            EmergedFoam = new Color(175f / 255f, 205f / 255f, 1f)
+        } },
+        { LiquidType.Blood, new FezUnityLiquidColorScheme() {
+            LiquidBody = new Color(174f / 255f, 26f / 255f, 0f),
+            SolidOverlay = new Color(84f / 255f, 0f, 21f / 255f),
+            SubmergedFoam = new Color(230f / 255f, 81f / 255f, 55f / 255f),
+            EmergedFoam = new Color(1f, 1f, 1f)
+        } },
+        { LiquidType.Sewer, new FezUnityLiquidColorScheme() {
+            LiquidBody = new Color(82f / 255f, 127f / 255f, 57f / 255f),
+            SolidOverlay = new Color(32f / 255f, 70f / 255f, 49f / 255f),
+            SubmergedFoam = new Color(174f / 255f, 196f / 255f, 64f / 255f),
+            EmergedFoam = new Color(174f / 255f, 196f / 255f, 64f / 255f)
+        } },
+        { LiquidType.Lava, new FezUnityLiquidColorScheme() {
+            LiquidBody = new Color(209f / 255f, 0f, 0f),
+            SolidOverlay = new Color(150f / 255f, 0f, 0f),
+            SubmergedFoam = new Color(1f, 0f, 0f),
+            EmergedFoam = new Color(1f, 0f, 0f)
+        } },
+        { LiquidType.Purple, new FezUnityLiquidColorScheme() {
+            LiquidBody = new Color(194f / 255f, 1f / 255f, 171f / 255f),
+            SolidOverlay = new Color(76f / 255f, 9f / 255f, 103f / 255f),
+            SubmergedFoam = new Color(247f / 255f, 52f / 255f, 223f / 255f),
+            EmergedFoam = new Color(254f / 255f, 254f / 255f, 254f / 255f)
+        } },
+        { LiquidType.Green, new FezUnityLiquidColorScheme() {
+            LiquidBody = new Color(47f / 255f, 1f, 139f / 255f),
+            SolidOverlay = new Color(0f, 167f / 255f, 134f / 255f),
+            SubmergedFoam = new Color(0f, 218f / 255f, 175f / 255f),
+            EmergedFoam = new Color(184f / 255f, 249f / 255f, 207f / 255f)
+        } }
+    };
+
+    public static FezUnityLiquidColorScheme GetColorScheme(this LiquidType type) {
+        FezUnityLiquidColorScheme scheme;
+        if (LiquidColorSchemes.TryGetValue(type, out scheme)) {
+            return scheme;
+        }
+        return null;
+    }
+
 }

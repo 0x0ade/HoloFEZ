@@ -12,7 +12,7 @@ SubShader {
 	LOD 100
 	
 	Offset -1, -1
-	ZWrite Off
+	//ZWrite Off
 	Blend SrcAlpha OneMinusSrcAlpha 
 	
 	Pass {  

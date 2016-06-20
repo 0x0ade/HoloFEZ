@@ -21,7 +21,7 @@ public class FezUnitySkyLayer : MonoBehaviour, IFillable<FezUnitySky, SkyLayer, 
             skyScale = 2f;
         }
         if (sky.Name == "SEWERS") {
-            skyScale = 16f;
+            skyScale = 32f;
         }
 
         Material materialBase = FezManager.Instance.SkyLayerMaterial;
@@ -44,7 +44,6 @@ public class FezUnitySkyLayer : MonoBehaviour, IFillable<FezUnitySky, SkyLayer, 
         );
         float ratio = tex.width / tex.height;
         meshRenderer.sharedMaterial.mainTextureScale = new Vector2(1f * skyScale, Scale * ratio * skyScale);
-
         meshRenderer.sharedMaterial.color = new Color(1f, 1f, 1f, layer.Opacity);
 
         // TODO add further special cases

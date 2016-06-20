@@ -32,8 +32,11 @@ public class FezManager : MonoBehaviour {
 
     public Material SkyLayerMaterial;
     public Material SkyLayerFullbrightMaterial;
+
+    public Material WaterMaterial;
 	
 	public Mesh QuadMesh;
+    public Mesh WaterMesh;
 	public Mesh BackgroundPlaneMesh;
     public Mesh SkyLayerMesh;
 	
@@ -65,6 +68,7 @@ public class FezManager : MonoBehaviour {
 
     void Start() {
         MainThread = Thread.CurrentThread;
+        Camera.main.depthTextureMode = DepthTextureMode.Depth;
 
         if (string.IsNullOrEmpty(FezPath)) {
 			FezPath = PlayerPrefs.GetString("FezContentPath");

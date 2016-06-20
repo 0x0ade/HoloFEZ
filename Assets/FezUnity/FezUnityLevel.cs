@@ -37,6 +37,8 @@ public class FezUnityLevel : MonoBehaviour, IFillable<Level> {
 	
 	[HideInInspector]
 	public FezUnitySky Sky;
+    [HideInInspector]
+    public FezUnityWater Water;
 
     [HideInInspector]
     public Level Level;
@@ -90,6 +92,14 @@ public class FezUnityLevel : MonoBehaviour, IFillable<Level> {
 
         if (SetupLightingOnFill) {
             SetupLighting();
+        }
+
+        if (level.WaterType != LiquidType.None) {
+            GameObject waterObj = new GameObject("Water");
+            waterObj.transform.parent = transform;
+            waterObj.transform.localPosition = new Vector3(level.Size.x / 2f, level.WaterHeight, level.Size.z / -2f);
+            Water = waterObj.AddComponent<FezUnityWater>();
+            Water.Fill(level.WaterType);
         }
 
         int asset = 0;

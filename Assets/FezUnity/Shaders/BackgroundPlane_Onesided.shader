@@ -107,7 +107,7 @@ Shader "FezUnity/BackgroundPlane_Onesided"
 			Tags { "LightMode" = "ForwardAdd" }
 			Blend [_SrcBlend] One
 			Fog { Color (0,0,0,0) } // in additive pass fog should be black
-			ZWrite Off
+			//ZWrite Off
 			ZTest LEqual
 
 			CGPROGRAM
@@ -347,7 +347,7 @@ Shader "FezUnity/BackgroundPlane_Onesided"
 			Tags { "LightMode" = "ForwardAdd" }
 			Blend [_SrcBlend] One
 			Fog { Color (0,0,0,0) } // in additive pass fog should be black
-			ZWrite Off
+			//ZWrite Off
 			ZTest LEqual
 			
 			CGPROGRAM

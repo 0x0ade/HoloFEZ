@@ -32,15 +32,6 @@ public class FloatingButton : MonoBehaviour, IReticleListener {
         meshRenderer = GetComponent<MeshRenderer>();
         meshRenderer.material = Instantiate(meshRenderer.sharedMaterial);
 
-        meshRenderer.sharedMaterial.SetFloat("_Mode", 2);
-        meshRenderer.sharedMaterial.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.SrcAlpha);
-        meshRenderer.sharedMaterial.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        meshRenderer.sharedMaterial.SetInt("_ZWrite", 0);
-        meshRenderer.sharedMaterial.DisableKeyword("_ALPHATEST_ON");
-        meshRenderer.sharedMaterial.EnableKeyword("_ALPHABLEND_ON");
-        meshRenderer.sharedMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        meshRenderer.sharedMaterial.renderQueue = 3000;
-
         TextureOffset = meshRenderer.sharedMaterial.mainTextureOffset;
 		TextureScale = meshRenderer.sharedMaterial.mainTextureScale;
 	}
