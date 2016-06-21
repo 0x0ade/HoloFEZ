@@ -31,8 +31,10 @@ public class FezUnityLevel : MonoBehaviour, IFillable<Level> {
 	public Dictionary<int, GameObject> ArtObjects = new Dictionary<int, GameObject>();
 	[HideInInspector]
 	public Dictionary<int, GameObject> BackgroundPlanes = new Dictionary<int, GameObject>();
-	
-	[HideInInspector]
+    [HideInInspector]
+    public Dictionary<int, GameObject> NPCs = new Dictionary<int, GameObject>();
+
+    [HideInInspector]
 	public FezUnityTrileSet TrileSet;
 	
 	[HideInInspector]
@@ -152,6 +154,20 @@ public class FezUnityLevel : MonoBehaviour, IFillable<Level> {
 		foreach (KeyValuePair<int, BackgroundPlane> pair in level.BackgroundPlanes) {
 			BackgroundPlane plane = pair.Value;
 			BackgroundPlanes[pair.Key] = plane.GenObject(planesObj);
+
+            if (asset >= AssetsPerFrame) {
+                asset = 0;
+                yield return pair;
+            } else {
+                asset++;
+            }
+        }
+
+        GameObject npcsObj = new GameObject("NPCs");
+        npcsObj.transform.parent = transform;
+        foreach (KeyValuePair<int, NpcInstance> pair in level.NonPlayerCharacters) {
+            NpcInstance npc = pair.Value;
+            NPCs[pair.Key] = npc.GenObject(npcsObj);
 
             if (asset >= AssetsPerFrame) {
                 asset = 0;

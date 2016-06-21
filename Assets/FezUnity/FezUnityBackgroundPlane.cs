@@ -14,7 +14,6 @@ public class FezUnityBackgroundPlane : MonoBehaviour, IFillable<BackgroundPlane>
 		Plane = plane;
 		
 		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
-		Mesh quadMesh = FezManager.Instance.QuadMesh;
 		meshFilter.sharedMesh = FezManager.Instance.BackgroundPlaneMesh;
 		
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();

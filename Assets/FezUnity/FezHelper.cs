@@ -13,8 +13,8 @@ public static class FezHelper {
 	// Tiles are offset by 0.5f in the Trixel Engine (see FEZMod.Editor custom mesh rendering, i.e. triles)
 	// As the triles are the real units, we're moving everything else back by -0.5f
 	public readonly static Vector3 TrileOffset = new Vector3(0.5f, 0.5f, 0.5f);
-	
-	public static Vector3 ToVector(this TrileEmplacement e) {
+
+    public static Vector3 ToVector(this TrileEmplacement e) {
 		return new Vector3(
 			e.X,
 			e.Y,
@@ -148,6 +148,23 @@ public static class FezHelper {
 		
 		return obj;
 	}
+
+    public static GameObject GenObject(this NpcInstance npc, GameObject parent = null) {
+        GameObject obj = new GameObject(npc.Name);
+        if (parent != null) {
+            obj.transform.parent = parent.transform;
+        }
+        obj.transform.localPosition = npc.Position;
+
+        FezUnityNpcInstance fezHolder = obj.AddComponent<FezUnityNpcInstance>();
+        fezHolder.Fill(npc);
+        obj.isStatic = false;
+
+        // Fix Unity / Trixel Engine Z direction conflict
+        obj.FezZ();
+
+        return obj;
+    }
 
     public static GameObject GenObject(this SkyLayer layer, FezUnitySky parent, int index, float offsetScale = 1f) {
         float maxSize = Mathf.Max(FezUnityLevel.Current.Level.Size.x, FezUnityLevel.Current.Level.Size.y, FezUnityLevel.Current.Level.Size.z);

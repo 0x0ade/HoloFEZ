@@ -11,12 +11,14 @@ public class FezUnityAnimatedTexture : MonoBehaviour, IFillable<AnimatedTexture>
 	public AnimatedTexture Animation;
 	
 	public Material Material;
+
+    public float Speed = 1f;
 	
 	public void Fill(AnimatedTexture animation) {
 		Animation = animation;
 	
 		MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
-		Material = meshRenderer.material;
+		Material = meshRenderer.sharedMaterial;
 		
 		Material.mainTextureScale = new Vector2(
 			Animation.FrameWidth / (float) Material.mainTexture.width,
@@ -27,7 +29,7 @@ public class FezUnityAnimatedTexture : MonoBehaviour, IFillable<AnimatedTexture>
 	}
 	
 	public void Update() {
-		Animation.Timing.Update(TimeSpan.FromSeconds(Time.deltaTime));
+		Animation.Timing.Update(TimeSpan.FromSeconds(Time.deltaTime), Speed);
 		
 		Rectangle offset = Animation.Offsets[Animation.Timing.Frame];
 		Material.mainTextureOffset = new Vector2(
