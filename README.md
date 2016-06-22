@@ -47,4 +47,4 @@ Recalibrate orientation: Y (keyboard or gamepad)
 
 ----
 
-#### Disclaimer: Only tested on Google Cardboard via Riftcat. Chaperone currently not supported.
+#### Disclaimer: Tested on Oculus Rift DK2 (Thanks, Renaud!) and Google Cardboard via Riftcat. Chaperone currently not supported.
