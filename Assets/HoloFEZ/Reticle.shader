@@ -25,6 +25,7 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
+			#pragma target 3.0
 
 			#define TAU 6.28318530718
 			#define PI 3.14159265359
