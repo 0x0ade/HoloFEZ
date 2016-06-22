@@ -66,6 +66,8 @@ public class FezManager : MonoBehaviour {
 
     List<QueuedAction> MainQueue = new List<QueuedAction>();
 
+    string ChosenJoystickTriggerAxis;
+
     void Start() {
         MainThread = Thread.CurrentThread;
         Camera.main.depthTextureMode = DepthTextureMode.Depth;
@@ -180,6 +182,14 @@ public class FezManager : MonoBehaviour {
 			return;
 		}
 
+        var joystickNames = Input.GetJoystickNames();
+        for (int i = 0; i < Mathf.Min(8, joystickNames.Length); i++)
+            if (joystickNames[i].IndexOf("xbox", System.StringComparison.InvariantCultureIgnoreCase) != -1)
+            {
+                ChosenJoystickTriggerAxis = string.Format("Time_J{0}", i + 1);
+                Debug.Log(string.Format("Chose joystick #{0} for the time axis", i + 1));
+                break;
+            }
     }
 
     void Awake() {
@@ -188,6 +198,10 @@ public class FezManager : MonoBehaviour {
 	
 	void Update() {
         Time += UnityEngine.Time.deltaTime * TimeFactor + UnityEngine.Time.deltaTime * TimeFactor * Input.GetAxis("Time") * 100.0f;
+
+        if (ChosenJoystickTriggerAxis != null)
+            Time += UnityEngine.Time.deltaTime * TimeFactor * Input.GetAxis(ChosenJoystickTriggerAxis) * 100.0f;
+
         if (Time < 0f) {
             Time += SecondsPerDay;
         }
