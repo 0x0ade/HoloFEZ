@@ -136,7 +136,7 @@ public class HoloFEZPlayer : MonoBehaviour {
 
         // Seated recalibration
         if (seated && Input.GetButtonDown("Recalibrate")) {
-            transform.rotation = Quaternion.Euler(0f, lastRecalibratedYRot = (Camera.main.transform.rotation.eulerAngles.y - lastRecalibratedYRot), 0f);
+            transform.rotation = Quaternion.Euler(0f, lastRecalibratedYRot = (Camera.main.transform.rotation.eulerAngles.y - lastRecalibratedYRot) - 90, 0f);
             VRControls.transform.rotation = nullRotation;
         }
 		
