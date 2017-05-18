@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Valve.VR;
+using FezEngine.Structure;
 
 public class HoloFEZPlayer : MonoBehaviour {
 
@@ -28,14 +29,17 @@ public class HoloFEZPlayer : MonoBehaviour {
 
     FloatingButton[] inGameButtons;
 
+    public SimpleSmoothMouseLook mouseLook;
+
     bool vr;
     bool seated;
 
     float lastRecalibratedYRot;
     Quaternion nullRotation = Quaternion.Euler(0f, 0f, 0f);
 
+    bool forceNoVR;
+
     void Start() {
-        vr = OpenVR.IsHmdPresent();
         seated = OpenVR.ChaperoneSetup == null;
 
         // FIXME Currently no Chaperone / SteamVR support
@@ -77,15 +81,23 @@ public class HoloFEZPlayer : MonoBehaviour {
 		}
 		InGameControls.SetActive(false);
 
-        SimpleSmoothMouseLook mouseLook = Camera.main.GetComponent<SimpleSmoothMouseLook>();
-        if (mouseLook != null) {
-            mouseLook.enabled = !vr;
-        }
+        FezUnityNpcInstance.DefaultTalk = NPCTalk;
+        FezUnityNpcInstance.DefaultStopTalking = NPCStopTalking;
 
         SwitchLevel(null);
 	}
 	
-	void Update () {
+	void Update() {
+        if (Input.GetButtonDown("ToggleVR"))
+            forceNoVR = !forceNoVR;
+
+        vr = OpenVR.IsHmdPresent() && !forceNoVR;
+        InGameControls.SetActive(vr && seated);
+        if (mouseLook == null)
+            mouseLook = Camera.main.GetComponent<SimpleSmoothMouseLook>();
+        if (mouseLook != null)
+            mouseLook.enabled = !vr;
+
         if (Input.GetButtonDown("Trigger")) {
             Reticle.Triggered = true;
         }
@@ -136,7 +148,7 @@ public class HoloFEZPlayer : MonoBehaviour {
 
         // Seated recalibration
         if (seated && Input.GetButtonDown("Recalibrate")) {
-            transform.rotation = Quaternion.Euler(0f, lastRecalibratedYRot = (Camera.main.transform.rotation.eulerAngles.y - lastRecalibratedYRot) - 90, 0f);
+            transform.rotation = Quaternion.Euler(0f, lastRecalibratedYRot = (Camera.main.transform.rotation.eulerAngles.y - lastRecalibratedYRot) - 90f, 0f);
             VRControls.transform.rotation = nullRotation;
         }
 		
@@ -178,7 +190,6 @@ public class HoloFEZPlayer : MonoBehaviour {
 
                 Frozen = false;
                 MainMenuControls.SetActive(false);
-                InGameControls.SetActive(vr && seated);
                 if (cb != null) {
                     cb();
                 }
@@ -276,6 +287,21 @@ public class HoloFEZPlayer : MonoBehaviour {
 
     public void Exit() {
         Application.Quit();
+    }
+
+    public void NPCTalk(FezUnityNpcInstance self) {
+        if ((transform.position - self.transform.position).sqrMagnitude < 25f) {
+            self.CurrentAction = NpcAction.Talk;
+        }
+
+
+    }
+
+    public bool NPCStopTalking(FezUnityNpcInstance self) {
+        if (36f < (transform.position - self.transform.position).sqrMagnitude) {
+            return true;
+        }
+        return false;
     }
 
 }

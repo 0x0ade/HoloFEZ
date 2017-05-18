@@ -34,13 +34,15 @@ public class FezManager : MonoBehaviour {
     public Material SkyLayerFullbrightMaterial;
 
     public Material WaterMaterial;
-	
+
 	public Mesh QuadMesh;
     public Mesh WaterMesh;
 	public Mesh BackgroundPlaneMesh;
     public Mesh SkyLayerMesh;
-	
-	public Transform Player;
+
+    public Font SpeechFont;
+
+    public Transform Player;
 
     public Light Sun;
     public float Time = 12f * 3600f;
@@ -158,7 +160,7 @@ public class FezManager : MonoBehaviour {
                     15, 14, 13
                 }
             };
-            SkyLayerMesh.Optimize();
+            ;
             SkyLayerMesh.RecalculateNormals();
         }
 
@@ -182,14 +184,14 @@ public class FezManager : MonoBehaviour {
 			return;
 		}
 
-        var joystickNames = Input.GetJoystickNames();
-        for (int i = 0; i < Mathf.Min(8, joystickNames.Length); i++)
-            if (joystickNames[i].IndexOf("xbox", System.StringComparison.InvariantCultureIgnoreCase) != -1)
-            {
+        string[] joystickNames = Input.GetJoystickNames();
+        for (int i = 0; i < Mathf.Min(8, joystickNames.Length); i++) {
+            if (joystickNames[i].IndexOf("xbox", System.StringComparison.InvariantCultureIgnoreCase) != -1) {
                 ChosenJoystickTriggerAxis = string.Format("Time_J{0}", i + 1);
                 Debug.Log(string.Format("Chose joystick #{0} for the time axis", i + 1));
                 break;
             }
+        }
     }
 
     void Awake() {
@@ -421,7 +423,7 @@ public class FezManager : MonoBehaviour {
 		mesh.uv = uv;
 
         mesh.RecalculateNormals();
-        mesh.Optimize();
+        ;
 		
 		return mesh;
 	}

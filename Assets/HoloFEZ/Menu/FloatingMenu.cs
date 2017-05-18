@@ -22,8 +22,8 @@ public class FloatingMenu : MonoBehaviour {
 				childTransform.localPosition.y,
 				Mathf.Cos(x) * Radius
 			);
-			
-			childTransform.LookAt(Camera.main.transform.position);
+
+            childTransform.LookAt(Camera.main.transform.position);
 			Vector3 euler = childTransform.rotation.eulerAngles;
 			childTransform.rotation = Quaternion.Euler(
 				0f,

@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 // Based on Unlit/Transparent
 Shader "HoloFez/FloatingButton" {
 Properties {
@@ -47,7 +49,7 @@ SubShader {
 			v2f vert (appdata_t v)
 			{
 				v2f o;
-				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv_MainTex = TRANSFORM_TEX(v.uv_MainTex, _MainTex);
 				o.uv_MaskTex = TRANSFORM_TEX(v.uv_MaskTex, _MaskTex);
 				UNITY_TRANSFER_FOG(o,o.vertex);
@@ -100,7 +102,7 @@ SubShader {
 			v2f vert (appdata_t v)
 			{
 				v2f o;
-				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv_MainTex = TRANSFORM_TEX(v.uv_MainTex, _MainTex);
 				o.uv_MaskTex = TRANSFORM_TEX(v.uv_MaskTex, _MaskTex);
 				UNITY_TRANSFER_FOG(o,o.vertex);

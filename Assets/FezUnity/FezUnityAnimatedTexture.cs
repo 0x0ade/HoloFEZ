@@ -13,6 +13,22 @@ public class FezUnityAnimatedTexture : MonoBehaviour, IFillable<AnimatedTexture>
 	public Material Material;
 
     public float Speed = 1f;
+
+    protected bool _flipH = false;
+    public bool FlipH {
+        get {
+            return _flipH;
+        }
+        set {
+            if (_flipH != value) {
+                Material.mainTextureScale = new Vector2(
+                    -Material.mainTextureScale.x,
+                    Material.mainTextureScale.y
+                );
+            }
+            _flipH = value;
+        }
+    }
 	
 	public void Fill(AnimatedTexture animation) {
 		Animation = animation;
@@ -36,6 +52,12 @@ public class FezUnityAnimatedTexture : MonoBehaviour, IFillable<AnimatedTexture>
 			offset.X / (float) Material.mainTexture.width,
 			offset.Y / (float) Material.mainTexture.height
 		);
+        if (FlipH) {
+            Material.mainTextureOffset = new Vector2(
+                Material.mainTextureOffset.x - Material.mainTextureScale.x,
+                Material.mainTextureOffset.y
+            );
+        }
 		
 	}
 	

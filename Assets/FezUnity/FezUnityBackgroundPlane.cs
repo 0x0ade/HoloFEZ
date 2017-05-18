@@ -59,7 +59,7 @@ public class FezUnityBackgroundPlane : MonoBehaviour, IFillable<BackgroundPlane>
 	
 	public void Update() {
 		if (Plane.Billboard) {
-			transform.LookAt(Camera.main.transform.position);
+            transform.LookAt(transform.position + (transform.position - Camera.main.transform.position));
         }
 		
 	}

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using FmbLib;
+using System.IO;
 
 public class LevelSelectMenu : MonoBehaviour {
 	
@@ -30,12 +31,14 @@ public class LevelSelectMenu : MonoBehaviour {
 			Material material;
 			
 			try {
-				material =
-					Instantiate((FmbUtil.ReadObject(
-						FezManager.Instance.ReadFromPack("other textures\\map_screens\\" + level)
-					) as Texture2D).GenMaterial(ButtonShader));
-                material.SetTexture("_MaskTex", MaskTexture);
-			} catch {
+                using (BinaryReader reader = FezManager.Instance.ReadFromPack("other textures\\map_screens\\" + level)) {
+				    material =
+					    Instantiate((FmbUtil.ReadObject(
+						    reader
+					    ) as Texture2D).GenMaterial(ButtonShader));
+                    material.SetTexture("_MaskTex", MaskTexture);
+                }
+            } catch {
                 // Normally hidden / inaccessible level
                 continue;
 			}

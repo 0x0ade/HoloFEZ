@@ -5,11 +5,17 @@ using FezEngine.Structure;
 using FezEngine.Tools;
 using FmbLib;
 using System.IO;
+using UnityEngine.UI;
 
 public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
 
+    public static Action<FezUnityNpcInstance> DefaultTalk = _Talk;
+    public static Func<FezUnityNpcInstance, bool> DefaultStopTalking = _StopTalking;
+
     [HideInInspector]
     public NpcInstance NPC;
+
+    public GameObject SpeechBubble;
 
     public Dictionary<NpcAction, FezUnityAnimatedTexture> Animations = new Dictionary<NpcAction, FezUnityAnimatedTexture>();
 
@@ -48,6 +54,7 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
                 if (value != NpcAction.None) {
                     FezUnityAnimatedTexture animation = Animations[value];
                     animation.Animation.Timing.Restart();
+                    CurrentAnimation = animation;
                     CurrentTiming = animation.Animation.Timing;
                     animation.enabled = true;
                     meshRenderer.sharedMaterial = animation.Material;
@@ -64,6 +71,7 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         }
     }
 
+    public FezUnityAnimatedTexture CurrentAnimation { get; protected set; }
     public AnimationTiming CurrentTiming { get; protected set; }
 
     public void Fill(NpcInstance npc) {
@@ -118,9 +126,10 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
             Animations[action] = animation;
         }
 
-        BinaryReader metadataReader = FezManager.Instance.ReadFromPack("character animations/" + NPC.Name + "/metadata");
-        if (metadataReader != null) {
-            npc.FillMetadata(FmbUtil.ReadObject(metadataReader) as NpcMetadata);
+        using (BinaryReader metadataReader = FezManager.Instance.ReadFromPack("character animations/" + NPC.Name + "/metadata")) {
+            if (metadataReader != null) {
+                npc.FillMetadata(FmbUtil.ReadObject(metadataReader) as NpcMetadata);
+            }
         }
 
         CanIdle = Animations.ContainsKey(NpcAction.Idle);
@@ -131,6 +140,71 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         CanTurn = Animations.ContainsKey(NpcAction.Turn);
 
         CurrentAction = CanIdle ? NpcAction.Idle : NpcAction.Walk;
+
+        if (!CanTalk) {
+            return;
+        }
+
+        SpeechBubble = new GameObject("Speech Bubble");
+        SpeechBubble.transform.parent = transform;
+        SpeechBubble.transform.localPosition = Vector3.up * transform.localScale.y * 0.5f;
+        SpeechBubble.transform.localScale = new Vector3(
+            0.01f / transform.localScale.x,
+            0.01f / transform.localScale.y,
+            1f
+        );
+
+        Canvas bubbleCanvas = SpeechBubble.AddComponent<Canvas>();
+        RectTransform bubbleTransform = SpeechBubble.GetComponent<RectTransform>();
+        bubbleTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200f);
+        bubbleTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 100f);
+
+        AddSpeechCorner(0f, 0f, "speechbubblese");
+        AddSpeechCorner(0f, 1f, "speechbubblese");
+        AddSpeechCorner(1f, 0f, "speechbubblese");
+        AddSpeechCorner(1f, 1f, "speechbubblese");
+
+        GameObject textObj = new GameObject("Text");
+        textObj.transform.parent = SpeechBubble.transform;
+        textObj.transform.localPosition = Vector3.zero;
+        textObj.transform.localScale = new Vector3(0.25f, 0.25f, 1f);
+
+        Text text = textObj.AddComponent<Text>();
+        text.font = FezManager.Instance.SpeechFont;
+        text.fontSize = 50;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.text = FezText.Game[NPC.Speech[0].Text];
+
+        RectTransform textTransform = textObj.GetComponent<RectTransform>();
+        textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200f);
+        textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 243f);
+    }
+
+    protected void AddSpeechCorner(float x, float y, string imgName) {
+        Texture2D tex = FezManager.Instance.GetTexture2D("other textures/speech_bubble/" + imgName);
+        tex.filterMode = FilterMode.Point;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        GameObject imgObj = new GameObject(imgName);
+        imgObj.transform.parent = SpeechBubble.transform;
+        imgObj.transform.localPosition = Vector3.zero;
+        imgObj.transform.localScale = Vector3.one;
+
+        Image img = imgObj.AddComponent<Image>();
+        // Cache sprites?
+        img.sprite = Sprite.Create(
+            tex,
+            new Rect((1f - x) * tex.width, y * tex.height, (2f * (x - 0.5f)) * tex.width, (2f * (y - 0.5f)) * -tex.height),
+            new Vector2(tex.width * 0.5f, tex.height * 0.5f),
+            16f
+        );
+        img.sprite.name = imgName;
+
+        RectTransform imgTransform = imgObj.GetComponent<RectTransform>();
+        imgTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 20f);
+        imgTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 20f);
+        imgTransform.pivot = new Vector2(1f - x, y);
     }
 
     public void Update() {
@@ -148,16 +222,17 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         }
 
         if (CurrentAction != NpcAction.Talk) {
-            if (CanTalk && (NPC.Speech.Count > 0 || NPC.CustomSpeechLine != null)) {
-                Talk();
+            if (Talk != null && CanTalk && (NPC.Speech.Count > 0 || NPC.CustomSpeechLine != null)) {
+                Talk(this);
             }
             if (CurrentAction == NpcAction.Walk) {
                 Walk();
             }
-        } else if (StopTalking() && CurrentAction != NpcAction.TakeOff) {
+        } else if (StopTalking != null && StopTalking(this) && CurrentAction != NpcAction.TakeOff) {
             ToggleAction();
         }
 
+        transform.LookAt(transform.position + (transform.position - Camera.main.transform.position));
         Vector3 ssPosition = Camera.main.WorldToScreenPoint(transform.position);
         bool lookingRight;
         if (FezHelper.AlmostEqual(ssPositionOld.x, ssPosition.x)) {
@@ -165,10 +240,9 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         } else {
             lookingRight = ssPositionOld.x < ssPosition.x;
         }
-        if (lookingRight) {
-            transform.LookAt(transform.position + (transform.position - Camera.main.transform.position));
-        } else {
-            transform.LookAt(Camera.main.transform.position);
+        if ((!lookingRight && 0f < meshRenderer.sharedMaterial.mainTextureScale.x) ||
+            (lookingRight && meshRenderer.sharedMaterial.mainTextureScale.x < 0f)) {
+            CurrentAnimation.FlipH = !lookingRight;
         }
     }
 
@@ -189,12 +263,13 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         gameObject.FezZ();
     }
 
-    private void Talk() {
-        // TODO
-    }
+    // Talking needs to be overriden by HoloFEZ
+    public Action<FezUnityNpcInstance> Talk = DefaultTalk;
+    public Func<FezUnityNpcInstance, bool> StopTalking = DefaultStopTalking;
 
-    private bool StopTalking() {
-        // TODO
+    private static void _Talk(FezUnityNpcInstance self) {
+    }
+    private static bool _StopTalking(FezUnityNpcInstance self) {
         return false;
     }
 

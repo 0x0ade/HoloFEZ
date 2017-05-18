@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: b2e46c1842c4137419ce2cf7fb359bfc
-timeCreated: 1466423255
+timeCreated: 1466607091
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
@@ -22,6 +22,7 @@ MonoImporter:
   - WaterMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
   - BackgroundPlaneMesh: {instanceID: 0}
   - SkyLayerMesh: {instanceID: 0}
+  - SpeechFont: {fileID: 12800000, guid: 5c35912d2768bdb489ac03fd827dd8a6, type: 3}
   - Player: {instanceID: 0}
   - Sun: {instanceID: 0}
   executionOrder: -200

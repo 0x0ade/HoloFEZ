@@ -1,4 +1,6 @@
-﻿Shader "FezUnity/Water"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "FezUnity/Water"
 {
 	Properties
 	{
@@ -49,7 +51,7 @@
 			v2f vert (appdata v)
 			{
 				v2f o;
-				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _NoiseTex);
 				o.screenpos = ComputeGrabScreenPos(o.vertex);
 				
@@ -65,7 +67,7 @@
 				float4 offs = float4(n.r - 0.25, n.g - 0.25, 0, 0) * 0.05;
 
 				float4 depthpos = i.screenpos + offs;
-				#ifdef UNITY_UV_STARTS_AT_TOP
+				#if !UNITY_UV_STARTS_AT_TOP
 				depthpos.y = depthpos.w - depthpos.y;
 				#endif
 				float d = Linear01Depth(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(depthpos)).r);

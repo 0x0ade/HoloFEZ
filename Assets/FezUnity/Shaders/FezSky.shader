@@ -1,4 +1,6 @@
-﻿// With help from https://github.com/keijiro/UnitySkyboxShaders
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// With help from https://github.com/keijiro/UnitySkyboxShaders
 Shader "FezUnity/Sky"
 {
     Properties
@@ -32,7 +34,7 @@ Shader "FezUnity/Sky"
     v2f vert(appdata v)
     {
         v2f o;
-        o.position = mul(UNITY_MATRIX_MVP, v.position);
+        o.position = UnityObjectToClipPos(v.position);
         o.uv = v.uv;
         return o;
     }
