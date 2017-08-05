@@ -81,15 +81,21 @@ public class HoloFEZPlayer : MonoBehaviour {
 		}
 		InGameControls.SetActive(false);
 
-        FezUnityNpcInstance.DefaultTalk = NPCTalk;
-        FezUnityNpcInstance.DefaultStopTalking = NPCStopTalking;
+        FezUnityNpcInstance.DefaultShouldStartTalking = NPCShouldStartTalking;
+        FezUnityNpcInstance.DefaultTalking = NPCTalking;
+        FezUnityNpcInstance.DefaultShouldStopTalking = NPCShouldStopTalking;
 
         SwitchLevel(null);
 	}
 	
 	void Update() {
-        if (Input.GetButtonDown("ToggleVR"))
+        if (Input.GetButtonDown("Toggle VR"))
             forceNoVR = !forceNoVR;
+
+        if (Input.GetButtonDown("Toggle Paper")) {
+            // RechalkCamEffect paper = Camera.main.GetComponent<RechalkCamEffect>();
+            // paper.enabled = !paper.enabled;
+        }
 
         vr = OpenVR.IsHmdPresent() && !forceNoVR;
         InGameControls.SetActive(vr && seated);
@@ -209,7 +215,6 @@ public class HoloFEZPlayer : MonoBehaviour {
 
         Teleporting = true;
 
-        ;
         for (float f = 0f; f <= 1f; f += TeleportFadeSpeed * HoloFEZHelper.SpeedF) {
             SteamVR_Fade.Start(new Color(
                 1f,
@@ -289,19 +294,18 @@ public class HoloFEZPlayer : MonoBehaviour {
         Application.Quit();
     }
 
-    public void NPCTalk(FezUnityNpcInstance self) {
-        if ((transform.position - self.transform.position).sqrMagnitude < 25f) {
-            self.CurrentAction = NpcAction.Talk;
-        }
-
-
+    public bool NPCShouldStartTalking(FezUnityNpcInstance npc) {
+        return (transform.position - npc.transform.position).sqrMagnitude < 25f;
     }
 
-    public bool NPCStopTalking(FezUnityNpcInstance self) {
-        if (36f < (transform.position - self.transform.position).sqrMagnitude) {
-            return true;
+    public void NPCTalking(FezUnityNpcInstance npc) {
+        if (Input.GetButtonDown("Trigger")) {
+            npc.UpdateText();
         }
-        return false;
+    }
+
+    public bool NPCShouldStopTalking(FezUnityNpcInstance npc) {
+        return 36f < (transform.position - npc.transform.position).sqrMagnitude;
     }
 
 }

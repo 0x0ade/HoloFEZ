@@ -6,16 +6,19 @@ using FezEngine.Tools;
 using FmbLib;
 using System.IO;
 using UnityEngine.UI;
+using System.Collections;
 
 public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
 
-    public static Action<FezUnityNpcInstance> DefaultTalk = _Talk;
-    public static Func<FezUnityNpcInstance, bool> DefaultStopTalking = _StopTalking;
+    public static Func<FezUnityNpcInstance, bool> DefaultShouldStartTalking = _ShouldStartTalking;
+    public static Action<FezUnityNpcInstance> DefaultTalking = _Talking;
+    public static Func<FezUnityNpcInstance, bool> DefaultShouldStopTalking = _ShouldStopTalking;
 
     [HideInInspector]
     public NpcInstance NPC;
 
     public GameObject SpeechBubble;
+    public CanvasGroup SpeechBubbleCanvasGroup;
 
     public Dictionary<NpcAction, FezUnityAnimatedTexture> Animations = new Dictionary<NpcAction, FezUnityAnimatedTexture>();
 
@@ -34,6 +37,18 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
     public bool CanWalk;
     public bool CanTalk;
     public bool CanTurn;
+
+    public int CurrentTextLine = -1;
+    private float _CurrentTextOpacity = 0f;
+    private float CurrentTextOpacity {
+        get {
+            return _CurrentTextOpacity;
+        }
+        set {
+            _CurrentTextOpacity = value;
+            SpeechBubbleCanvasGroup.alpha = value;
+        }
+    }
 
     NpcAction _currentAction;
     public NpcAction CurrentAction {
@@ -159,6 +174,8 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         bubbleTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200f);
         bubbleTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 100f);
 
+        SpeechBubbleCanvasGroup = SpeechBubble.AddComponent<CanvasGroup>();
+
         AddSpeechCorner(0f, 0f, "speechbubblese");
         AddSpeechCorner(0f, 1f, "speechbubblese");
         AddSpeechCorner(1f, 0f, "speechbubblese");
@@ -174,11 +191,13 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         text.fontSize = 50;
         text.alignment = TextAnchor.MiddleCenter;
         text.verticalOverflow = VerticalWrapMode.Overflow;
-        text.text = FezText.Game[NPC.Speech[0].Text];
+        text.text = "";
 
         RectTransform textTransform = textObj.GetComponent<RectTransform>();
         textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200f);
         textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 243f);
+
+        CurrentTextOpacity = 0f;
     }
 
     protected void AddSpeechCorner(float x, float y, string imgName) {
@@ -221,15 +240,23 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
             ToggleAction();
         }
 
+        bool shouldStopTalking = ShouldStopTalking != null && ShouldStopTalking(this);
+        if (shouldStopTalking)
+            CurrentTextLine = -1;
+
         if (CurrentAction != NpcAction.Talk) {
-            if (Talk != null && CanTalk && (NPC.Speech.Count > 0 || NPC.CustomSpeechLine != null)) {
-                Talk(this);
+            if (ShouldStartTalking != null && CanTalk && (NPC.Speech.Count > 0 || NPC.CustomSpeechLine != null) && CurrentTextLine == -1 && ShouldStartTalking(this)) {
+                CurrentAction = NpcAction.Talk;
+                UpdateText(0);
             }
             if (CurrentAction == NpcAction.Walk) {
                 Walk();
             }
-        } else if (StopTalking != null && StopTalking(this) && CurrentAction != NpcAction.TakeOff) {
+        } else if ((shouldStopTalking || CurrentTextLine < 0 || CurrentTextLine >= NPC.Speech.Count) && CurrentAction != NpcAction.TakeOff) {
+            StartCoroutine(FadeTextOut());
             ToggleAction();
+        } else {
+            Talking(this);
         }
 
         transform.LookAt(transform.position + (transform.position - Camera.main.transform.position));
@@ -264,13 +291,56 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
     }
 
     // Talking needs to be overriden by HoloFEZ
-    public Action<FezUnityNpcInstance> Talk = DefaultTalk;
-    public Func<FezUnityNpcInstance, bool> StopTalking = DefaultStopTalking;
+    public Func<FezUnityNpcInstance, bool> ShouldStartTalking = DefaultShouldStartTalking;
+    public Action<FezUnityNpcInstance> Talking = DefaultTalking;
+    public Func<FezUnityNpcInstance, bool> ShouldStopTalking = DefaultShouldStopTalking;
 
-    private static void _Talk(FezUnityNpcInstance self) {
-    }
-    private static bool _StopTalking(FezUnityNpcInstance self) {
+    private static bool _ShouldStartTalking(FezUnityNpcInstance self) {
         return false;
+    }
+    private static void _Talking(FezUnityNpcInstance self) {
+    }
+    private static bool _ShouldStopTalking(FezUnityNpcInstance self) {
+        return false;
+    }
+
+    private Coroutine _CurrentTextUpdater;
+    public void UpdateText(int line = -1) {
+        if (line == -1)
+            line = ++CurrentTextLine;
+        CurrentTextLine = line;
+        if (CurrentTextLine < 0 || CurrentTextLine >= NPC.Speech.Count)
+            return;
+
+        string text = FezText.Game[NPC.Speech[line].Text];
+        if (_CurrentTextUpdater != null)
+            StopCoroutine(_CurrentTextUpdater);
+        _CurrentTextUpdater = StartCoroutine(UpdateText(text));
+    }
+
+    private IEnumerator UpdateText(string text) {
+        yield return FadeTextOut();
+        transform.GetComponentInChildren<Text>().text = text;
+        yield return FadeTextIn();
+    }
+
+    private IEnumerator FadeTextOut() {
+        return FadeText(0f);
+    }
+
+    private IEnumerator FadeTextIn() {
+        return FadeText(1f);
+    }
+
+    private IEnumerator FadeText(float to) {
+        float from = CurrentTextOpacity;
+
+        for (float f = 0f; f <= 0.1f; f += Time.deltaTime) {
+            CurrentTextOpacity = Mathf.Lerp(from, to, f / 0.1f);
+            yield return null;
+        }
+
+        CurrentTextOpacity = to;
     }
 
     private void ToggleAction() {

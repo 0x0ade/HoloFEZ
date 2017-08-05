@@ -166,39 +166,12 @@ Shader "FezUnity/BackgroundPlane_Onesided"
 			#pragma multi_compile_shadowcaster
 
 			#pragma vertex vertShadowCaster
-			#pragma fragment fragHook
+			#pragma fragment fragShadowCaster
 
 			#include "UnityStandardShadow.cginc"
 
 			float4 _PlaneScale;
 			#pragma multi_compile _ _PlaneClamp
-			half4 fragHook(
-				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
-				VertexOutputShadowCaster i
-				#endif
-				#ifdef UNITY_STANDARD_USE_DITHER_MASK
-				, UNITY_VPOS_TYPE vpos : VPOS
-				#endif
-			) : SV_Target {
-				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
-				//FIXME
-				/*i.tex.xy = 
-				#ifndef _PlaneClamp
-				frac(
-				#else
-				saturate(
-				#endif
-				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;*/
-				#endif
-				return fragShadowCaster(
-					#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
-					i
-					#endif
-					#ifdef UNITY_STANDARD_USE_DITHER_MASK
-					, vpos
-					#endif
-				);
-			}
 
 			ENDCG
 		}
@@ -398,39 +371,12 @@ Shader "FezUnity/BackgroundPlane_Onesided"
 			#pragma multi_compile_shadowcaster
 
 			#pragma vertex vertShadowCaster
-			#pragma fragment fragHook
+			#pragma fragment fragShadowCaster
 
 			#include "UnityStandardShadow.cginc"
 
 			float4 _PlaneScale;
 			#pragma multi_compile _ _PlaneClamp
-			half4 fragHook(
-				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
-				VertexOutputShadowCaster i
-				#endif
-				#ifdef UNITY_STANDARD_USE_DITHER_MASK
-				, UNITY_VPOS_TYPE vpos : VPOS
-				#endif
-			) : SV_Target {
-				#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
-				//FIXME
-				/*i.tex.xy = 
-				#ifndef _PlaneClamp
-				frac(
-				#else
-				saturate(
-				#endif
-				(i.tex.xy - _MainTex_ST.zw) * _PlaneScale.xy / _MainTex_ST.xy) * _MainTex_ST.xy + _MainTex_ST.zw;*/
-				#endif
-				return fragShadowCaster(
-					#ifdef UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
-					i
-					#endif
-					#ifdef UNITY_STANDARD_USE_DITHER_MASK
-					, vpos
-					#endif
-				);
-			}
 
 			ENDCG
 		}
