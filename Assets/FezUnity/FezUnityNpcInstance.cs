@@ -14,6 +14,10 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
     public static Action<FezUnityNpcInstance> DefaultTalking = _Talking;
     public static Func<FezUnityNpcInstance, bool> DefaultShouldStopTalking = _ShouldStopTalking;
 
+    private static Dictionary<ulong, Sprite> _SpeechBubbleSprites = new Dictionary<ulong, Sprite>();
+    private static Texture2D _SpeechBubbleFillTexture;
+    private static Sprite _SpeechBubbleFillSprite;
+
     [HideInInspector]
     public NpcInstance NPC;
 
@@ -162,7 +166,7 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
 
         SpeechBubble = new GameObject("Speech Bubble");
         SpeechBubble.transform.parent = transform;
-        SpeechBubble.transform.localPosition = Vector3.up * transform.localScale.y * 0.5f;
+        SpeechBubble.transform.localPosition = Vector3.up * transform.localScale.y * 0.5f + Vector3.forward * transform.localScale.z * 0.3f;
         SpeechBubble.transform.localScale = new Vector3(
             0.01f / transform.localScale.x,
             0.01f / transform.localScale.y,
@@ -180,6 +184,8 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
         AddSpeechCorner(0f, 1f, "speechbubblese");
         AddSpeechCorner(1f, 0f, "speechbubblese");
         AddSpeechCorner(1f, 1f, "speechbubblese");
+        AddSpeechFill(0, "fullblack");
+        AddSpeechFill(1, "fullblack");
 
         GameObject textObj = new GameObject("Text");
         textObj.transform.parent = SpeechBubble.transform;
@@ -188,42 +194,96 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
 
         Text text = textObj.AddComponent<Text>();
         text.font = FezManager.Instance.SpeechFont;
-        text.fontSize = 50;
+        // text.fontSize = 50;
+        text.fontSize = 75;
         text.alignment = TextAnchor.MiddleCenter;
         text.verticalOverflow = VerticalWrapMode.Overflow;
         text.text = "";
 
         RectTransform textTransform = textObj.GetComponent<RectTransform>();
-        textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200f);
-        textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 243f);
+        // textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200f);
+        // textTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 243f);
+        textTransform.anchorMin = new Vector2(0f, 0f);
+        textTransform.anchorMax = new Vector2(1f, 1f);
 
         CurrentTextOpacity = 0f;
     }
 
     protected void AddSpeechCorner(float x, float y, string imgName) {
-        Texture2D tex = FezManager.Instance.GetTexture2D("other textures/speech_bubble/" + imgName);
-        tex.filterMode = FilterMode.Point;
-        tex.wrapMode = TextureWrapMode.Clamp;
-
         GameObject imgObj = new GameObject(imgName);
         imgObj.transform.parent = SpeechBubble.transform;
         imgObj.transform.localPosition = Vector3.zero;
         imgObj.transform.localScale = Vector3.one;
 
+        ulong key =
+            (uint) BitConverter.ToInt32(BitConverter.GetBytes(x), 0) |
+            (((ulong) BitConverter.ToInt32(BitConverter.GetBytes(y), 0)) << 32);
+        Sprite sprite;
+        if (!_SpeechBubbleSprites.TryGetValue(key, out sprite) || sprite == null) {
+            Texture2D tex = FezManager.Instance.GetTexture2D("other textures/speech_bubble/" + imgName);
+            tex.filterMode = FilterMode.Point;
+            tex.wrapMode = TextureWrapMode.Clamp;
+
+            sprite = Sprite.Create(
+                tex,
+                new Rect((1f - x) * tex.width, y * tex.height, (2f * (x - 0.5f)) * tex.width, (2f * (y - 0.5f)) * -tex.height),
+                new Vector2(tex.width * 0.5f, tex.height * 0.5f),
+                16f
+            );
+            sprite.name = imgName;
+        }
+
         Image img = imgObj.AddComponent<Image>();
-        // Cache sprites?
-        img.sprite = Sprite.Create(
-            tex,
-            new Rect((1f - x) * tex.width, y * tex.height, (2f * (x - 0.5f)) * tex.width, (2f * (y - 0.5f)) * -tex.height),
-            new Vector2(tex.width * 0.5f, tex.height * 0.5f),
-            16f
-        );
-        img.sprite.name = imgName;
+        img.sprite = sprite;
 
         RectTransform imgTransform = imgObj.GetComponent<RectTransform>();
         imgTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 20f);
         imgTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 20f);
-        imgTransform.pivot = new Vector2(1f - x, y);
+        if (x < 0.5f)
+            imgTransform.anchoredPosition = new Vector2(20f, 0f);
+        else
+            imgTransform.anchoredPosition = new Vector2(-20f, 0f);
+        imgTransform.pivot = new Vector2(1f - x, 1f - y);
+        imgTransform.anchorMin = imgTransform.anchorMax = new Vector2(x, 1f - y);
+    }
+
+    protected void AddSpeechFill(int y, string imgName) {
+        GameObject imgObj = new GameObject(imgName);
+        imgObj.transform.parent = SpeechBubble.transform;
+        imgObj.transform.localPosition = Vector3.zero;
+        imgObj.transform.localScale = Vector3.one;
+
+        if (_SpeechBubbleFillSprite == null) {
+            if (_SpeechBubbleFillTexture == null) {
+                _SpeechBubbleFillTexture = new Texture2D(1, 1);
+                _SpeechBubbleFillTexture.SetPixel(0, 0, Color.black);
+                _SpeechBubbleFillTexture.Apply();
+                _SpeechBubbleFillTexture.filterMode = FilterMode.Point;
+                _SpeechBubbleFillTexture.wrapMode = TextureWrapMode.Clamp;
+            }
+
+            _SpeechBubbleFillSprite = Sprite.Create(
+                _SpeechBubbleFillTexture,
+                new Rect(0f, 0f, _SpeechBubbleFillTexture.width, _SpeechBubbleFillTexture.height),
+                new Vector2(_SpeechBubbleFillTexture.width * 0.5f, _SpeechBubbleFillTexture.height * 0.5f),
+                _SpeechBubbleFillTexture.width
+            );
+            _SpeechBubbleFillSprite.name = imgName;
+        }
+
+        Image img = imgObj.AddComponent<Image>();
+        img.sprite = _SpeechBubbleFillSprite;
+
+        RectTransform imgTransform = imgObj.GetComponent<RectTransform>();
+        imgTransform.anchorMin = new Vector2(0f, 0f);
+        imgTransform.anchorMax = new Vector2(1f, 1f);
+        if (y == 0) {
+            imgTransform.offsetMin = new Vector2(20f, 0f);
+            imgTransform.offsetMax = new Vector2(-20f, 0f);
+        } else if (y == 1) {
+            imgTransform.offsetMin = new Vector2(0f, 20f);
+            imgTransform.offsetMax = new Vector2(0f, -20f);
+        }
     }
 
     public void Update() {
@@ -320,7 +380,10 @@ public class FezUnityNpcInstance : MonoBehaviour, IFillable<NpcInstance> {
 
     private IEnumerator UpdateText(string text) {
         yield return FadeTextOut();
-        transform.GetComponentInChildren<Text>().text = text;
+        SpeechBubble.transform.GetComponentInChildren<Text>().text = text;
+        RectTransform bubbleTransform = SpeechBubble.GetComponent<RectTransform>();
+        bubbleTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, text.Length * 20f);
+        bubbleTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 100f);
         yield return FadeTextIn();
     }
 
